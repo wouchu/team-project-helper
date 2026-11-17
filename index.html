@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>팀 과제 도우미</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, -apple-system, "Malgun Gothic", sans-serif; background: #f8f7fc; color: #211d31; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 0; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .wrap { width: min(100%, 780px); margin: 0 auto; padding: 20px 16px 42px; }
+    .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+    h1 { margin: 0 0 5px; font-size: 1.55rem; letter-spacing: -.04em; }
+    h2 { margin: 0 0 16px; font-size: 1.25rem; letter-spacing: -.03em; }
+    h3 { margin: 0 0 12px; font-size: 1.06rem; }
+    p { line-height: 1.55; }
+    .sub, .hint, .muted { color: #5e6b80; }
+    .sub { margin: 0; font-size: .91rem; }
+    .hint { margin: 7px 0 0; font-size: .84rem; }
+    .today { flex: none; font-size: .83rem; font-weight: 700; color: #563a9e; background: #eee8fb; border-radius: 999px; padding: 8px 10px; }
+    .card { background: white; border: 1px solid #dce3ee; border-radius: 16px; padding: 18px; box-shadow: 0 3px 12px #1e31580a; margin-bottom: 14px; min-width: 0; }
+    .hero { background: #574095; color: white; border: 0; }
+    .hero .muted, .hero .sub { color: #dbe7ff; }
+    .row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+    .between { justify-content: space-between; }
+    .stack { display: grid; gap: 12px; }
+    .field { display: grid; gap: 6px; min-width: 0; }
+    label, .label { font-size: .9rem; font-weight: 700; }
+    input, select, textarea { width: 100%; min-width: 0; border: 1px solid #bfcadc; border-radius: 10px; background: white; color: #17233b; padding: 11px 12px; }
+    textarea { resize: vertical; min-height: 76px; }
+    input:focus, select:focus, textarea:focus, button:focus-visible, summary:focus-visible { outline: 3px solid #8db6ff; outline-offset: 2px; }
+    .choices { display: grid; gap: 8px; }
+    .choice { display: flex; align-items: flex-start; gap: 9px; padding: 12px; border: 1px solid #cad5e6; border-radius: 10px; font-weight: 500; }
+    .choice input { width: auto; margin-top: 4px; }
+    .choice strong, .choice small { display: block; }
+    .choice small { color: #5e6b80; margin-top: 2px; line-height: 1.45; }
+    .btn { border: 1px solid #b8c6dc; border-radius: 10px; background: white; color: #1e3766; font-weight: 700; padding: 10px 13px; min-height: 44px; text-align: center; }
+    .btn:hover { background: #edf3ff; }
+    .btn-primary { background: #6747ad; color: white; border-color: #6747ad; }
+    .btn-primary:hover { background: #533791; }
+    .btn-danger { color: #a12c39; border-color: #e8bec4; }
+    .btn-danger:hover { background: #fff1f2; }
+    .btn-small { font-size: .88rem; min-height: 40px; padding: 8px 11px; }
+    .full { width: 100%; }
+    .section-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 25px 0 12px; }
+    .section-head h2 { margin: 0; }
+    .project { display: block; width: 100%; text-align: left; border: 1px solid #dce3ee; border-radius: 16px; padding: 17px; background: white; color: inherit; margin: 0 0 10px; }
+    .project:hover { border-color: #6293e5; background: #fbfdff; }
+    .project strong { display: block; font-size: 1.08rem; overflow-wrap: anywhere; }
+    .project .metrics { margin-top: 12px; }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .metric { background: #f1f5fb; border-radius: 10px; padding: 10px 8px; min-width: 0; }
+    .metric b, .metric span { display: block; }
+    .metric b { font-size: 1.05rem; overflow-wrap: anywhere; }
+    .metric span { font-size: .75rem; color: #5e6b80; margin-top: 2px; }
+    .danger-text { color: #aa283c; }
+    .progress { height: 8px; background: #e3eaf5; border-radius: 99px; overflow: hidden; margin-top: 11px; }
+    .progress i { display: block; height: 100%; background: #8062ca; border-radius: inherit; }
+    .tag { display: inline-block; padding: 4px 8px; border-radius: 999px; background: #ebf1fa; color: #30496c; font-size: .78rem; font-weight: 700; }
+    .tag-late { background: #ffeaed; color: #a12c39; }
+    .tag-done { background: #e0f6eb; color: #146343; }
+    .task { border: 1px solid #dce3ee; border-radius: 14px; padding: 15px; background: white; margin-bottom: 10px; min-width: 0; }
+    .task h3 { overflow-wrap: anywhere; }
+    .task-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .task .stack { gap: 10px; }
+    details { border-top: 1px solid #e1e7f0; margin-top: 14px; padding-top: 12px; }
+    summary { color: #2459aa; font-weight: 700; cursor: pointer; min-height: 30px; }
+    details .stack { margin-top: 12px; }
+    .log { padding: 10px 0; border-bottom: 1px solid #e3e8f0; }
+    .log:last-child { border-bottom: 0; }
+    .log p { margin: 4px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .empty { text-align: center; padding: 24px 12px; color: #5e6b80; }
+    .utility { margin-top: 28px; padding-top: 18px; border-top: 1px solid #dce3ee; }
+    .utility .row { align-items: stretch; }
+    .notice { color: #a12c39; font-weight: 700; min-height: 1.5em; margin: 10px 0 0; }
+    .tabs { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 5px; margin: 14px 0; }
+    .tabs button { min-width: 0; padding: 9px 2px; font-size: .87rem; border: 1px solid #d8ceee; border-radius: 10px; background: #fff; color: #5a438b; font-weight: 700; min-height: 44px; }
+    .tabs button[aria-current="page"] { background: #6747ad; border-color: #6747ad; color: white; }
+    .alert { border: 1px solid #e8bec4; background: #fff3f4; color: #92283a; border-radius: 10px; padding: 11px; margin: 9px 0; overflow-wrap: anywhere; }
+    .summary-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+    .summary-cell { background: #f5f2fb; border-radius: 11px; padding: 11px; overflow-wrap: anywhere; }
+    .summary-cell strong, .summary-cell span { display: block; }
+    .summary-cell span { color: #5e5670; font-size: .83rem; margin-top: 4px; }
+    .slot-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; max-height: 320px; overflow-y: auto; padding: 3px; }
+    .slot { display: flex; align-items: center; gap: 6px; padding: 7px; border: 1px solid #d7d0e5; border-radius: 8px; font-size: .8rem; font-weight: 500; min-height: 38px; }
+    .slot:has(input:checked) { background: #eee8fa; border-color: #8666ce; }
+    .slot input { width: auto; flex: none; margin: 0; }
+    .calendar-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .calendar-head h3 { margin: 0; text-align: center; }
+    .calendar { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 3px; }
+    .weekday { text-align: center; color: #635b70; font-size: .76rem; padding: 4px 0; }
+    .day { border: 1px solid #e4deed; background: white; border-radius: 7px; min-height: 50px; min-width: 0; padding: 4px 2px; text-align: center; font-size: .8rem; color: inherit; }
+    .day[aria-pressed="true"] { outline: 2px solid #6747ad; }
+    .day.today-day { background: #eee8fa; }
+    .day .dots { display: flex; justify-content: center; gap: 2px; flex-wrap: wrap; margin-top: 4px; }
+    .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #8062ca; }
+    .dot.task-dot { background: #d59434; }
+    .dot.meeting-dot { background: #2a9872; }
+    .candidate { border: 1px solid #d8ceee; border-radius: 12px; padding: 12px; margin: 8px 0; }
+    .candidate strong { display: block; margin-bottom: 4px; }
+    .candidate p { margin: 4px 0 10px; font-size: .86rem; color: #5e5670; }
+    .link { overflow-wrap: anywhere; }
+    .member-color { display: inline-block; border-radius: 999px; padding: 3px 8px; color: #302442; background: #eee8fa; margin: 3px 3px 3px 0; font-size: .8rem; }
+    @media (max-width: 420px) {
+      .wrap { padding: 16px 12px 32px; }
+      .card { padding: 15px; }
+      .top { flex-wrap: wrap; }
+      .today { order: 2; }
+      .metrics { gap: 5px; }
+      .metric { padding: 9px 5px; }
+      .metric b { font-size: .93rem; }
+      .utility .btn { flex: 1 1 100%; }
+      .tabs button { font-size: .78rem; }
+      .summary-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="top">
+      <div><h1>팀 과제 도우미</h1><p class="sub">우리 팀의 일정과 진행 상황을 한곳에</p></div>
+      <div id="today" class="today"></div>
+    </header>
+    <div id="app"></div>
+    <section class="utility" aria-label="시험용 기능">
+      <div class="row">
+        <button type="button" class="btn" id="next-day">다음 날로 이동</button>
+        <button type="button" class="btn btn-danger" id="reset-all">처음부터 다시</button>
+      </div>
+      <p class="hint">기록은 지금 사용 중인 브라우저에 저장됩니다.</p>
+      <p id="notice" class="notice" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+  <script>
+    (() => {
+      'use strict';
+      const KEY = '팀과제도우미:데이터';
+      const app = document.getElementById('app');
+      const todayNode = document.getElementById('today');
+      const notice = document.getElementById('notice');
+      let selectedId = null;
+      let activeTab = '진행';
+      let activeMember = '';
+      let activeWeekday = 1;
+      let exceptionMember = '';
+      let exceptionDate = '';
+      let selectedCalendarDate = '';
+      let calendarMonth = '';
+      let selectedCandidate = null;
+      let state = load();
+      const DAYS = ['일','월','화','수','목','금','토'];
+      const SECTIONS = ['자료 조사','발표 자료','발표 대본','보고서','기타'];
+
+      function localToday() {
+        const d = new Date();
+        return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
+      }
+      function addDays(iso, days) {
+        const [y, m, d] = iso.split('-').map(Number);
+        const value = new Date(Date.UTC(y, m - 1, d + days));
+        return value.toISOString().slice(0, 10);
+      }
+      function daysBetween(from, to) {
+        const a = Date.parse(from + 'T00:00:00Z');
+        const b = Date.parse(to + 'T00:00:00Z');
+        return Math.round((b - a) / 86400000);
+      }
+      function isIsoDate(s) { return /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s + 'T00:00:00Z')) && new Date(s + 'T00:00:00Z').toISOString().slice(0, 10) === s; }
+      function dateText(s) { const [y, m, d] = s.split('-'); return `${y}년 ${Number(m)}월 ${Number(d)}일`; }
+      function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+      function id() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 9); }
+      function load() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(KEY));
+          if (saved && isIsoDate(saved.today) && Array.isArray(saved.projects)) return saved;
+        } catch (_) { /* 손상된 저장 내용은 새로 시작한다. */ }
+        return { today: localToday(), projects: [] };
+      }
+      function save() {
+        try { localStorage.setItem(KEY, JSON.stringify(state)); notice.textContent = ''; return true; }
+        catch (_) { notice.textContent = '저장하지 못했습니다. 브라우저 저장 공간을 확인해 주세요.'; return false; }
+      }
+      function project() { return state.projects.find(p => p.id === selectedId); }
+      function extras(p) {
+        if (!p.weekly) p.weekly = [];
+        if (!p.exceptions) p.exceptions = [];
+        if (!p.meetings) p.meetings = [];
+        if (!p.resources) p.resources = [];
+        if (!p.notes) p.notes = [];
+        return p;
+      }
+      function slotText(slot) { return `${String(Math.floor(slot / 2)).padStart(2,'0')}:${slot % 2 ? '30' : '00'}`; }
+      function weekdayOf(date) { return new Date(date + 'T00:00:00Z').getUTCDay(); }
+      function sectionOf(t) { return SECTIONS.includes(t.section) ? t.section : SECTIONS.includes(t.name) ? t.name : '기타'; }
+      function sectionOptions(selected) { return SECTIONS.map(s => `<option ${s === selected ? 'selected' : ''}>${s}</option>`).join(''); }
+      function memberPickOptions(p, selected) { return p.members.map(m => `<option value="${escapeHtml(m)}" ${m === selected ? 'selected' : ''}>${escapeHtml(m)}</option>`).join(''); }
+      function getWeekly(p, member, day) { return p.weekly.find(x => x.member === member && x.day === day)?.slots || []; }
+      function getException(p, member, date) { return p.exceptions.find(x => x.member === member && x.date === date); }
+      function availableSlots(p, member, date) { return getException(p, member, date)?.slots || getWeekly(p, member, weekdayOf(date)); }
+      function selectedSlots(data) { return data.getAll('slot').map(Number).filter(n => Number.isInteger(n) && n >= 0 && n < 48).sort((a,b) => a-b); }
+      function slotsHtml(slots) {
+        const chosen = new Set(slots);
+        return `<div class="slot-grid" role="group" aria-label="가능한 시간">${Array.from({length:48},(_,i) => `<label class="slot"><input type="checkbox" name="slot" value="${i}" ${chosen.has(i) ? 'checked' : ''}><span>${slotText(i)}~${slotText(i+1)}</span></label>`).join('')}</div>`;
+      }
+      function meetingText(m) { return `${dateText(m.date)} ${slotText(m.start)}~${slotText(m.start + 2)}`; }
+      function candidates(p) {
+        if (p.due < state.today || !p.members.length) return [];
+        const list = [];
+        const range = Math.max(0, daysBetween(state.today, p.due));
+        for (let d = 0; d <= range; d++) {
+          const date = addDays(state.today, d);
+          const dayList = [];
+          const earliest = date === localToday() ? Math.ceil((new Date().getHours() * 60 + new Date().getMinutes()) / 30) : 0;
+          for (let start = earliest; start < 47; start++) {
+            if (p.meetings.some(m => m.date === date && m.start === start && m.status !== '대체됨')) continue;
+            const available = p.members.filter(m => { const slots = availableSlots(p,m,date); return slots.includes(start) && slots.includes(start+1); });
+            if (available.length) dayList.push({ date, start, available });
+          }
+          dayList.sort((a,b) => b.available.length - a.available.length || a.start - b.start);
+          if (dayList.length) list.push(dayList[0]);
+        }
+        const full = list.filter(c => c.available.length === p.members.length);
+        return (full.length ? full : list).sort((a,b) => b.available.length - a.available.length || a.date.localeCompare(b.date) || a.start-b.start).slice(0,3);
+      }
+      function metrics(p) {
+        const total = p.tasks.length;
+        const done = p.tasks.filter(t => t.status === '완료').length;
+        const late = p.tasks.filter(t => t.status !== '완료' && daysBetween(t.due, state.today) >= 1).length;
+        return { total, done, late, percent: total ? Math.round(done / total * 100) : 0, left: daysBetween(state.today, p.due) };
+      }
+      function deadlineText(left) { return left > 0 ? `${left}일 남음` : left === 0 ? '오늘 마감' : `${-left}일 지남`; }
+      function metricHtml(p) {
+        const m = metrics(p);
+        return `<div class="metrics"><div class="metric"><b class="${m.left < 0 ? 'danger-text' : ''}">${deadlineText(m.left)}</b><span>과제 마감</span></div><div class="metric"><b class="${m.late ? 'danger-text' : ''}">${m.late}개</b><span>지연된 할 일</span></div><div class="metric"><b>${m.percent}%</b><span>완료 비율</span></div></div><div class="progress" role="progressbar" aria-label="완료 비율" aria-valuenow="${m.percent}" aria-valuemin="0" aria-valuemax="100"><i style="width:${m.percent}%"></i></div>`;
+      }
+      function render() {
+        todayNode.textContent = `앱 안의 오늘 · ${dateText(state.today)}`;
+        if (selectedId && !project()) selectedId = null;
+        if (selectedId) {
+          const p = extras(project());
+          if (!p.members.includes(activeMember)) activeMember = p.members[0];
+          if (!p.members.includes(exceptionMember)) exceptionMember = p.members[0];
+          if (!isIsoDate(exceptionDate)) exceptionDate = state.today;
+          if (!isIsoDate(selectedCalendarDate)) selectedCalendarDate = state.today;
+          if (!/^\d{4}-\d{2}-01$/.test(calendarMonth)) calendarMonth = state.today.slice(0,7) + '-01';
+          app.innerHTML = detailHtml(p);
+        } else app.innerHTML = homeHtml();
+      }
+      function homeHtml() {
+        const items = state.projects.slice().sort((a, b) => a.due.localeCompare(b.due)).map(p => `<button type="button" class="project" data-open="${p.id}"><strong>${escapeHtml(p.name)}</strong><span class="hint">마감 ${dateText(p.due)} · 팀원 ${p.members.length}명</span>${metricHtml(p)}</button>`).join('');
+        return `<section class="card hero"><h2>과제 현황</h2><p class="sub">${state.projects.length ? `${state.projects.length}개 과제를 관리 중입니다.` : '첫 팀 과제를 만들어 보세요.'}</p></section>
+          <div class="section-head"><h2>과제 목록</h2></div>${items || '<div class="card empty">아직 만든 과제가 없습니다.</div>'}
+          <section class="card"><h2>새 과제 만들기</h2><form id="create-project" class="stack">
+            <div class="field"><label for="project-name">과제명</label><input id="project-name" name="name" maxlength="80" required placeholder="예: 환경 문제 발표"></div>
+            <div class="field"><label for="project-due">마감일</label><input id="project-due" name="due" type="date" min="${state.today}" value="${addDays(state.today, 7)}" required></div>
+            <div class="field"><label for="project-members">팀원 이름</label><textarea id="project-members" name="members" required placeholder="한 줄에 한 명씩 적어 주세요"></textarea><p class="hint">한 줄에 한 명씩 적어 주세요.</p></div>
+            <div class="field"><span class="label">계획 방식</span><div class="choices"><label class="choice"><input type="radio" name="mode" value="basic" checked><span><strong>기본 단계</strong><small>자료 조사, 발표 자료, 발표 대본, 보고서 업무를 만듭니다.</small></span></label><label class="choice"><input type="radio" name="mode" value="blank"><span><strong>빈 계획표</strong><small>할 일을 직접 하나씩 추가합니다.</small></span></label></div></div>
+            <button class="btn btn-primary full" type="submit">과제 만들기</button></form></section>`;
+      }
+      function memberOptions(p, selected) { return `<option value="">미지정</option>` + p.members.map(m => `<option value="${escapeHtml(m)}" ${m === selected ? 'selected' : ''}>${escapeHtml(m)}</option>`).join(''); }
+      function taskHtml(p, t) {
+        const late = t.status !== '완료' && daysBetween(t.due, state.today) >= 1;
+        return `<article class="task"><div class="row between"><h3>${escapeHtml(t.name)}</h3>${late ? '<span class="tag tag-late">지연</span>' : t.status === '완료' ? '<span class="tag tag-done">완료</span>' : ''}</div>
+          <div class="task-meta"><span class="tag">${escapeHtml(sectionOf(t))}</span><span class="tag">${dateText(t.due)}</span><span class="tag">담당 ${escapeHtml(t.assignee || '미지정')}</span></div>
+          <form class="stack" data-record="${t.id}"><div class="field"><label for="status-${t.id}">진행 상태</label><select id="status-${t.id}" name="status">${['진행 전','진행 중','완료'].map(s => `<option ${t.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+          <div class="field"><label for="memo-${t.id}">오늘의 메모</label><textarea id="memo-${t.id}" name="memo" maxlength="500" placeholder="한 일이나 막힌 점을 적어 주세요"></textarea></div><button class="btn btn-primary" type="submit">진행 기록 저장</button></form>
+          <details><summary>할 일 수정</summary><form class="stack" data-edit-task="${t.id}"><div class="field"><label for="task-name-${t.id}">할 일 이름</label><input id="task-name-${t.id}" name="name" maxlength="80" value="${escapeHtml(t.name)}" required></div><div class="field"><label for="task-section-${t.id}">업무 폴더</label><select id="task-section-${t.id}" name="section">${sectionOptions(sectionOf(t))}</select></div><div class="field"><label for="task-due-${t.id}">할 일 날짜</label><input id="task-due-${t.id}" name="due" type="date" min="${t.due < state.today ? t.due : state.today}" max="${p.due}" value="${t.due}" required><p class="hint">지난 날짜는 그대로 둘 수 있습니다. 새 날짜는 앱 안의 오늘부터 과제 마감일까지 고르세요.</p></div><div class="field"><label for="task-owner-${t.id}">담당자</label><select id="task-owner-${t.id}" name="assignee">${memberOptions(p, t.assignee)}</select></div><div class="row"><button class="btn btn-primary" type="submit">수정 저장</button><button class="btn btn-danger" type="button" data-delete-task="${t.id}">할 일 삭제</button></div></form></details></article>`;
+      }
+      function progressHtml(p) {
+        const tasks = SECTIONS.map(section => {
+          const group = p.tasks.filter(t => sectionOf(t) === section).sort((a,b) => a.due.localeCompare(b.due));
+          return group.length ? `<section><h3>${section} · ${group.length}개</h3>${group.map(t => taskHtml(p,t)).join('')}</section>` : '';
+        }).join('');
+        const logs = (p.logs || []).slice().reverse().map(l => `<div class="log"><strong>${dateText(l.date)} · ${escapeHtml(l.taskName)} · ${escapeHtml(l.status)}</strong>${l.memo ? `<p>${escapeHtml(l.memo)}</p>` : ''}</div>`).join('');
+        return `<button class="btn btn-small" type="button" id="go-home">← 과제 목록</button>
+          <section class="card" style="margin-top:14px"><h2>${escapeHtml(p.name)}</h2><p class="sub">마감 ${dateText(p.due)} · 팀원 ${p.members.map(escapeHtml).join(', ')}</p>${metricHtml(p)}</section>
+          ${dashboardHtml(p)}
+          <div class="section-head"><h2>할 일 ${p.tasks.length}개</h2></div>${tasks || '<div class="card empty">아직 할 일이 없습니다. 아래에서 추가해 주세요.</div>'}
+          <section class="card"><h3>할 일 추가</h3>${p.due < state.today ? '<p class="alert">과제 마감일이 지났습니다. 새 할 일을 추가하려면 아래에서 과제 마감일을 먼저 연장해 주세요.</p>' : `<form id="add-task" class="stack"><div class="field"><label for="new-task-name">할 일 이름</label><input id="new-task-name" name="name" maxlength="80" required placeholder="예: 발표 자료 모으기"></div><div class="field"><label for="new-task-section">업무 폴더</label><select id="new-task-section" name="section">${sectionOptions('기타')}</select></div><div class="field"><label for="new-task-due">할 일 날짜</label><input id="new-task-due" name="due" type="date" min="${state.today}" max="${p.due}" value="${p.due}" required></div><div class="field"><label for="new-task-owner">담당자</label><select id="new-task-owner" name="assignee">${memberOptions(p, '')}</select></div><button class="btn btn-primary" type="submit">할 일 추가</button></form>`}</section>
+          <section class="card"><h3>진행 기록</h3>${logs || '<p class="muted">아직 저장한 기록이 없습니다.</p>'}</section>
+          <section class="card"><details><summary>과제 정보 수정</summary><form id="edit-project" class="stack"><div class="field"><label for="edit-project-name">과제명</label><input id="edit-project-name" name="name" maxlength="80" value="${escapeHtml(p.name)}" required></div><div class="field"><label for="edit-project-due">과제 마감일</label><input id="edit-project-due" name="due" type="date" min="${p.due < state.today ? p.due : state.today}" value="${p.due}" required><p class="hint">지난 마감일은 그대로 둘 수 있습니다. 새 마감일은 앱 안의 오늘 이후로 정하세요.</p></div><div class="field"><label for="edit-project-members">팀원 이름</label><textarea id="edit-project-members" name="members" required>${escapeHtml(p.members.join('\n'))}</textarea></div><label class="choice"><input type="checkbox" name="carryRename" value="1" checked><span>팀원 이름을 고친 경우 기존 업무와 시간표 이어받기</span></label><button class="btn btn-primary" type="submit">과제 정보 저장</button><button class="btn btn-danger" type="button" id="delete-project">이 과제 삭제</button></form></details></section>`;
+      }
+      function dashboardHtml(p) {
+        const soon = p.tasks.filter(t => t.status !== '완료' && daysBetween(state.today,t.due) <= 3).sort((a,b) => a.due.localeCompare(b.due));
+        const upcoming = p.meetings.filter(m => m.status === '확정' && m.date >= state.today).sort((a,b) => a.date.localeCompare(b.date) || a.start-b.start)[0];
+        const members = p.members.map(m => { const mine = p.tasks.filter(t => t.assignee === m && t.status !== '완료'); return `<div class="summary-cell"><strong>${escapeHtml(m)} · 남은 업무 ${mine.length}개</strong><span>${mine.length ? mine.map(t => escapeHtml(t.name)).join(', ') : '남은 업무 없음'}</span></div>`; }).join('');
+        return `<section class="card"><h3>한눈에 보기</h3><p class="sub">다음 회의: ${upcoming ? meetingText(upcoming) : '확정된 회의 없음'}</p>${p.meetings.some(m => m.status === '재조율 필요' && m.date >= state.today) ? '<div class="alert">확인이나 마감일이 바뀐 회의가 있습니다. 새 회의 시간을 골라 주세요.</div>' : ''}${soon.map(t => `<div class="alert">${escapeHtml(t.name)} · ${escapeHtml(t.assignee || '담당 미지정')} · ${daysBetween(state.today,t.due) < 0 ? '마감 지남' : `마감까지 ${daysBetween(state.today,t.due)}일`}</div>`).join('')}<div class="summary-grid">${members}</div></section>`;
+      }
+      function detailHtml(p) {
+        const tabs = ['진행','일정','추천','자료실'];
+        return `<nav class="tabs" aria-label="과제 메뉴">${tabs.map(t => `<button type="button" data-tab="${t}" ${activeTab === t ? 'aria-current="page"' : ''}>${t}</button>`).join('')}</nav>${activeTab === '일정' ? calendarHtml(p) : activeTab === '추천' ? recommendationHtml(p) : activeTab === '자료실' ? resourcesHtml(p) : progressHtml(p)}`;
+      }
+      function monthMove(iso, offset) {
+        const [y,m] = iso.split('-').map(Number);
+        const d = new Date(Date.UTC(y,m-1+offset,1));
+        return d.toISOString().slice(0,10);
+      }
+      function calendarHtml(p) {
+        const [year,month] = calendarMonth.split('-').map(Number);
+        const first = new Date(Date.UTC(year,month-1,1)).getUTCDay();
+        const count = new Date(Date.UTC(year,month,0)).getUTCDate();
+        const blanks = Array(first).fill('<div></div>').join('');
+        const days = Array.from({length:count},(_,i) => {
+          const date = `${calendarMonth.slice(0,7)}-${String(i+1).padStart(2,'0')}`;
+          const task = p.tasks.some(t => t.due === date);
+          const meeting = p.meetings.some(m => m.date === date && m.status === '확정');
+          const available = p.members.some(m => availableSlots(p,m,date).length);
+          return `<button type="button" class="day ${date === state.today ? 'today-day' : ''}" data-calendar-date="${date}" aria-label="${dateText(date)}${task ? ', 업무 마감' : ''}${meeting ? ', 회의' : ''}" aria-pressed="${date === selectedCalendarDate}">${i+1}<span class="dots">${available ? '<i class="dot"></i>' : ''}${task ? '<i class="dot task-dot"></i>' : ''}${meeting ? '<i class="dot meeting-dot"></i>' : ''}</span></button>`;
+        }).join('');
+        const dayTasks = p.tasks.filter(t => t.due === selectedCalendarDate);
+        const dayMeetings = p.meetings.filter(m => m.date === selectedCalendarDate && m.status !== '대체됨');
+        const dayAvailability = p.members.map((m,i) => `<span class="member-color" style="background:${['#eee3fb','#e3efff','#def5e9','#fff0ce','#ffe5e8'][i%5]}">${escapeHtml(m)} ${availableSlots(p,m,selectedCalendarDate).length}칸</span>`).join('');
+        const dayNotes = p.notes.filter(n => n.date === selectedCalendarDate).map(n => `<div class="log"><strong>${escapeHtml(n.member)}</strong><p>${escapeHtml(n.text)}</p></div>`).join('');
+        const weekly = getWeekly(p,activeMember,activeWeekday);
+        const exception = getException(p,exceptionMember,exceptionDate);
+        return `<button class="btn btn-small" type="button" id="go-home">← 과제 목록</button><section class="card" style="margin-top:14px"><h2>일정 관리</h2><div class="calendar-head"><button class="btn btn-small" type="button" data-month="-1" aria-label="이전 달">‹ 이전</button><h3>${year}년 ${month}월</h3><button class="btn btn-small" type="button" data-month="1" aria-label="다음 달">다음 ›</button></div><div class="calendar">${DAYS.map(d => `<div class="weekday">${d}</div>`).join('')}${blanks}${days}</div><p class="hint">● 보라: 가능 시간 · 주황: 업무 마감 · 초록: 확정 회의</p></section>
+          <section class="card"><h3>${dateText(selectedCalendarDate)}</h3><p class="sub">팀원별 가능한 30분 칸</p><div>${dayAvailability}</div>${dayTasks.map(t => `<p>업무 마감 · ${escapeHtml(t.name)} (${escapeHtml(t.assignee || '미지정')})</p>`).join('')}${dayMeetings.map(m => `<p>${m.status === '확정' ? '확정 회의' : '재조율 필요'} · ${slotText(m.start)}~${slotText(m.start+2)}</p>`).join('')}${dayNotes}<form id="add-note" class="stack"><div class="field"><label for="note-member">특이 사항 팀원</label><select id="note-member" name="member">${memberPickOptions(p,p.members[0])}</select></div><div class="field"><label for="note-text">특이 사항</label><textarea id="note-text" name="text" maxlength="300" required placeholder="예: 이날은 오후 참석이 어렵습니다"></textarea></div><button class="btn" type="submit">특이 사항 저장</button></form></section>
+          <section class="card"><h3>매주 가능한 시간</h3><p class="hint">팀원과 요일을 고른 뒤 가능한 30분 칸을 체크하세요.</p><form id="save-weekly" class="stack"><div class="field"><label for="weekly-member">팀원</label><select id="weekly-member" name="member">${memberPickOptions(p,activeMember)}</select></div><div class="field"><label for="weekly-day">요일</label><select id="weekly-day" name="day">${DAYS.map((d,i) => `<option value="${i}" ${activeWeekday === i ? 'selected' : ''}>${d}요일</option>`).join('')}</select></div>${slotsHtml(weekly)}<button class="btn btn-primary" type="submit">매주 시간표 저장</button></form></section>
+          <section class="card"><h3>날짜별 예외</h3><p class="hint">이 날짜에는 매주 시간표 대신 아래 시간을 사용합니다.</p><form id="save-exception" class="stack"><div class="field"><label for="exception-member">팀원</label><select id="exception-member" name="member">${memberPickOptions(p,exceptionMember)}</select></div><div class="field"><label for="exception-date">날짜</label><input id="exception-date" name="date" type="date" value="${exceptionDate}" required></div>${slotsHtml(exception?.slots || getWeekly(p,exceptionMember,weekdayOf(exceptionDate)))}<div class="row"><button class="btn btn-primary" type="submit">예외 시간 저장</button>${exception ? '<button class="btn btn-danger" type="button" id="remove-exception">예외 삭제</button>' : ''}</div></form></section>`;
+      }
+      function recommendationHtml(p) {
+        const list = candidates(p);
+        const selected = selectedCandidate && list.find(c => c.date === selectedCandidate.date && c.start === selectedCandidate.start);
+        const choose = selected ? `<section class="card"><h3>회의 참석 확인</h3><p>${dateText(selected.date)} ${slotText(selected.start)}~${slotText(selected.start+2)}</p><form id="confirm-meeting" class="stack">${p.members.map(m => `<label class="choice"><input type="checkbox" name="confirmed" value="${escapeHtml(m)}"><span>${escapeHtml(m)} ${selected.available.includes(m) ? '· 시간표상 가능' : '· 시간표상 불가'}</span></label>`).join('')}<p class="hint">전원이 참석을 확인하면 회의가 확정됩니다.</p><button class="btn btn-primary" type="submit">회의 확정</button></form></section>` : '';
+        const meetingList = p.meetings.filter(m => m.status !== '대체됨').sort((a,b) => a.date.localeCompare(b.date) || a.start-b.start).map(m => `<article class="candidate"><strong>${meetingText(m)} · ${m.status}</strong><form class="stack" data-meeting="${m.id}">${p.members.map(name => `<label class="choice"><input type="checkbox" name="confirmed" value="${escapeHtml(name)}" ${m.confirmed?.includes(name) ? 'checked' : ''}><span>${escapeHtml(name)} 참석 확인</span></label>`).join('')}<button class="btn" type="submit">참석 확인 저장</button></form></article>`).join('');
+        return `<button class="btn btn-small" type="button" id="go-home">← 과제 목록</button><section class="card" style="margin-top:14px"><h2>공통 가능 시간 추천</h2><p class="sub">앱 안의 오늘부터 과제 마감일까지, 1시간 회의를 추천합니다.</p>${list.length ? list.map((c,i) => `<div class="candidate"><strong>${i+1}순위 · ${dateText(c.date)} ${slotText(c.start)}~${slotText(c.start+2)}</strong><p>${c.available.length === p.members.length ? '전원 가능' : `${p.members.length}명 중 ${c.available.length}명 가능`} · ${escapeHtml(c.available.join(', '))}</p><button class="btn ${selected?.date === c.date && selected?.start === c.start ? 'btn-primary' : ''}" type="button" data-candidate="${c.date}:${c.start}">이 시간 선택</button></div>`).join('') : '<div class="empty">추천할 시간이 없습니다. 일정 화면에서 팀원 시간표를 입력하거나 예외 시간을 확인해 주세요.</div>'}</section>${choose}<section class="card"><h3>회의 일정과 참석 확인</h3>${meetingList || '<p class="muted">아직 정한 회의가 없습니다.</p>'}</section>`;
+      }
+      function resourcesHtml(p) {
+        const items = SECTIONS.map(section => {
+          const group = p.resources.filter(r => r.section === section).slice().reverse();
+          return group.length ? `<section><h3>${section} · ${group.length}개</h3>${group.map(r => `<article class="task"><h3>${escapeHtml(r.title)}</h3>${r.url ? `<a class="link" href="${escapeHtml(r.url)}" target="_blank" rel="noopener noreferrer">자료 링크 열기</a>` : ''}${r.memo ? `<p>${escapeHtml(r.memo)}</p>` : ''}<button class="btn btn-danger btn-small" type="button" data-delete-resource="${r.id}">자료 삭제</button></article>`).join('')}</section>` : '';
+        }).join('');
+        return `<button class="btn btn-small" type="button" id="go-home">← 과제 목록</button><section class="card" style="margin-top:14px"><h2>자료실</h2><p class="sub">자료 링크와 설명을 업무 폴더별로 모읍니다.</p></section>${items || '<div class="card empty">아직 저장한 자료가 없습니다.</div>'}<section class="card"><h3>자료 추가</h3><form id="add-resource" class="stack"><div class="field"><label for="resource-title">자료 제목</label><input id="resource-title" name="title" maxlength="80" required></div><div class="field"><label for="resource-section">업무 폴더</label><select id="resource-section" name="section">${sectionOptions('기타')}</select></div><div class="field"><label for="resource-url">자료 링크</label><input id="resource-url" name="url" type="url" placeholder="https://"></div><div class="field"><label for="resource-memo">설명</label><textarea id="resource-memo" name="memo" maxlength="500"></textarea></div><button class="btn btn-primary" type="submit">자료 저장</button></form></section>`;
+      }
+      function membersFrom(text) { return [...new Set(text.split(/\r?\n/).map(s => s.trim()).filter(Boolean))]; }
+      function validDue(due, minimum, maximum) { return isIsoDate(due) && due >= minimum && (!maximum || due <= maximum); }
+      function basicTasks(due) {
+        const span = Math.max(0, daysBetween(state.today, due));
+        return SECTIONS.slice(0,4).map((name, i) => ({ id: id(), name, section: name, due: addDays(state.today, i === 3 ? span : Math.round(span * (i + 1) / 4)), assignee: '', status: '진행 전' }));
+      }
+      app.addEventListener('submit', e => {
+        const form = e.target;
+        e.preventDefault();
+        const data = new FormData(form);
+        if (form.id === 'create-project') {
+          const name = String(data.get('name') || '').trim(), due = String(data.get('due') || ''), members = membersFrom(String(data.get('members') || ''));
+          if (!name || !members.length || !validDue(due, state.today)) { alert('과제명, 팀원 이름, 오늘 이후의 마감일을 확인해 주세요.'); return; }
+          const p = { id: id(), name, due, members, tasks: data.get('mode') === 'blank' ? [] : basicTasks(due), logs: [], weekly: [], exceptions: [], meetings: [], resources: [], notes: [] };
+          state.projects.push(p); selectedId = p.id; activeTab = '진행'; selectedCandidate = null; save(); render(); return;
+        }
+        const p = project(); if (!p) return;
+        if (form.id === 'add-task') {
+          const name = String(data.get('name') || '').trim(), due = String(data.get('due') || ''), assignee = String(data.get('assignee') || '');
+          if (!name || p.due < state.today || !validDue(due, state.today, p.due) || (assignee && !p.members.includes(assignee))) { alert('할 일 이름, 날짜, 담당자와 과제 마감일을 확인해 주세요.'); return; }
+          p.tasks.push({ id: id(), name, section: String(data.get('section') || '기타'), due, assignee, status: '진행 전' }); save(); render(); return;
+        }
+        if (form.id === 'edit-project') {
+          const name = String(data.get('name') || '').trim(), due = String(data.get('due') || ''), members = membersFrom(String(data.get('members') || ''));
+          if (!name || !members.length || (due !== p.due && !validDue(due, state.today))) { alert('과제명, 팀원 이름, 새 마감일을 확인해 주세요.'); return; }
+          const removed = p.members.filter(m => !members.includes(m));
+          const added = members.filter(m => !p.members.includes(m));
+          const rename = data.get('carryRename') === '1' && p.members.length === members.length && removed.length === 1 && added.length === 1;
+          if (rename) {
+            const oldName = removed[0], newName = added[0];
+            p.tasks.forEach(t => { if (t.assignee === oldName) t.assignee = newName; });
+            p.weekly.forEach(x => { if (x.member === oldName) x.member = newName; });
+            p.exceptions.forEach(x => { if (x.member === oldName) x.member = newName; });
+            p.notes.forEach(x => { if (x.member === oldName) x.member = newName; });
+            p.meetings.forEach(m => { m.confirmed = (m.confirmed || []).map(x => x === oldName ? newName : x); });
+          } else if (removed.some(m => p.tasks.some(t => t.assignee === m) || p.weekly.some(x => x.member === m) || p.exceptions.some(x => x.member === m) || p.notes.some(x => x.member === m) || p.meetings.some(x => (x.confirmed || []).includes(m))) && !confirm('삭제하거나 교체한 팀원의 담당 업무와 시간표가 지워질 수 있습니다. 계속할까요?')) return;
+          p.name = name; p.due = due; p.members = members;
+          p.tasks.forEach(t => { if (t.due > due) t.due = due; if (!members.includes(t.assignee)) t.assignee = ''; });
+          p.weekly = p.weekly.filter(x => members.includes(x.member));
+          p.exceptions = p.exceptions.filter(x => members.includes(x.member));
+          p.meetings.forEach(m => { m.confirmed = (m.confirmed || []).filter(x => members.includes(x)); if (m.status === '확정' && (m.confirmed.length !== members.length || m.date > due)) m.status = '재조율 필요'; });
+          save(); render(); return;
+        }
+        if (form.id === 'save-weekly') {
+          const member = String(data.get('member') || ''), day = Number(data.get('day'));
+          if (!p.members.includes(member) || !Number.isInteger(day) || day < 0 || day > 6) return;
+          p.weekly = p.weekly.filter(x => !(x.member === member && x.day === day));
+          p.weekly.push({member,day,slots:selectedSlots(data)});
+          activeMember = member; activeWeekday = day; save(); render(); return;
+        }
+        if (form.id === 'save-exception') {
+          const member = String(data.get('member') || ''), date = String(data.get('date') || '');
+          if (!p.members.includes(member) || !isIsoDate(date)) { alert('팀원과 날짜를 확인해 주세요.'); return; }
+          p.exceptions = p.exceptions.filter(x => !(x.member === member && x.date === date));
+          p.exceptions.push({member,date,slots:selectedSlots(data)});
+          exceptionMember = member; exceptionDate = date; save(); render(); return;
+        }
+        if (form.id === 'add-note') {
+          const member = String(data.get('member') || ''), text = String(data.get('text') || '').trim();
+          if (!p.members.includes(member) || !text) return;
+          p.notes.push({id:id(),date:selectedCalendarDate,member,text}); save(); render(); return;
+        }
+        if (form.id === 'confirm-meeting') {
+          if (!selectedCandidate || !candidates(p).some(c => c.date === selectedCandidate.date && c.start === selectedCandidate.start)) { selectedCandidate = null; render(); return; }
+          const confirmed = data.getAll('confirmed').map(String);
+          if (!p.members.every(m => confirmed.includes(m))) { alert('팀원 모두의 참석 확인을 체크해 주세요.'); return; }
+          p.meetings.forEach(m => { if (m.status === '재조율 필요') m.status = '대체됨'; });
+          p.meetings.push({id:id(),date:selectedCandidate.date,start:selectedCandidate.start,confirmed:[...p.members],status:'확정'});
+          selectedCandidate = null; save(); render(); return;
+        }
+        if (form.dataset.meeting) {
+          const m = p.meetings.find(x => x.id === form.dataset.meeting); if (!m) return;
+          m.confirmed = data.getAll('confirmed').map(String).filter(x => p.members.includes(x));
+          m.status = p.members.every(name => m.confirmed.includes(name)) ? '확정' : '재조율 필요';
+          save(); render(); return;
+        }
+        if (form.id === 'add-resource') {
+          const title = String(data.get('title') || '').trim(), section = String(data.get('section') || '기타'), rawUrl = String(data.get('url') || '').trim(), memo = String(data.get('memo') || '').trim();
+          let url = '';
+          if (rawUrl) { try { const parsed = new URL(rawUrl); if (!['http:','https:'].includes(parsed.protocol)) throw Error(); url = parsed.href; } catch (_) { alert('자료 링크는 http 또는 https 주소로 적어 주세요.'); return; } }
+          if (!title || !SECTIONS.includes(section)) return;
+          p.resources.push({id:id(),title,section,url,memo}); save(); render(); return;
+        }
+        const recordId = form.dataset.record;
+        if (recordId) {
+          const t = p.tasks.find(x => x.id === recordId); if (!t) return;
+          const status = String(data.get('status') || ''), memo = String(data.get('memo') || '').trim();
+          if (!['진행 전','진행 중','완료'].includes(status)) return;
+          t.status = status; p.logs.push({ id: id(), date: state.today, taskName: t.name, status, memo });
+          save(); render(); return;
+        }
+        const editId = form.dataset.editTask;
+        if (editId) {
+          const t = p.tasks.find(x => x.id === editId); if (!t) return;
+          const name = String(data.get('name') || '').trim(), due = String(data.get('due') || ''), assignee = String(data.get('assignee') || '');
+          if (!name || (due !== t.due && !validDue(due, state.today, p.due)) || (assignee && !p.members.includes(assignee))) { alert('할 일 이름, 새 날짜, 담당자를 확인해 주세요.'); return; }
+          t.name = name; t.section = String(data.get('section') || '기타'); t.due = due; t.assignee = assignee; save(); render();
+        }
+      });
+      app.addEventListener('click', e => {
+        const open = e.target.closest('[data-open]');
+        if (open) { selectedId = open.dataset.open; activeTab = '진행'; selectedCandidate = null; calendarMonth = ''; render(); return; }
+        if (e.target.id === 'go-home') { selectedId = null; render(); return; }
+        const tab = e.target.closest('[data-tab]');
+        if (tab) { activeTab = tab.dataset.tab; selectedCandidate = null; render(); return; }
+        const month = e.target.closest('[data-month]');
+        if (month) {
+          calendarMonth = monthMove(calendarMonth, Number(month.dataset.month));
+          if (!selectedCalendarDate.startsWith(calendarMonth.slice(0,7))) selectedCalendarDate = calendarMonth;
+          render(); return;
+        }
+        const date = e.target.closest('[data-calendar-date]');
+        if (date) { selectedCalendarDate = date.dataset.calendarDate; render(); return; }
+        const candidate = e.target.closest('[data-candidate]');
+        if (candidate) { const [date,start] = candidate.dataset.candidate.split(':'); selectedCandidate = {date,start:Number(start)}; render(); return; }
+        if (e.target.id === 'remove-exception') {
+          const p = project(); if (!p || !confirm('이 날짜의 예외 시간을 삭제할까요?')) return;
+          p.exceptions = p.exceptions.filter(x => !(x.member === exceptionMember && x.date === exceptionDate)); save(); render(); return;
+        }
+        const resource = e.target.closest('[data-delete-resource]');
+        if (resource) {
+          const p = project(); if (!p || !confirm('이 자료를 삭제할까요?')) return;
+          p.resources = p.resources.filter(x => x.id !== resource.dataset.deleteResource); save(); render(); return;
+        }
+        const deleteTask = e.target.closest('[data-delete-task]');
+        if (deleteTask) {
+          const p = project(); if (!p || !confirm('이 할 일을 삭제할까요? 이전 진행 기록은 남습니다.')) return;
+          p.tasks = p.tasks.filter(t => t.id !== deleteTask.dataset.deleteTask); save(); render(); return;
+        }
+        if (e.target.id === 'delete-project') {
+          const p = project(); if (!p || !confirm(`‘${p.name}’ 과제와 모든 기록을 삭제할까요?`)) return;
+          state.projects = state.projects.filter(x => x.id !== p.id); selectedId = null; save(); render();
+        }
+      });
+      app.addEventListener('change', e => {
+        if (e.target.id === 'weekly-member') { activeMember = e.target.value; render(); }
+        if (e.target.id === 'weekly-day') { activeWeekday = Number(e.target.value); render(); }
+        if (e.target.id === 'exception-member') { exceptionMember = e.target.value; render(); }
+        if (e.target.id === 'exception-date' && isIsoDate(e.target.value)) { exceptionDate = e.target.value; render(); }
+      });
+      document.getElementById('next-day').addEventListener('click', () => {
+        const previous = state.today;
+        state.today = addDays(state.today, 1);
+        if (selectedCalendarDate === previous) selectedCalendarDate = state.today;
+        if (calendarMonth === previous.slice(0,7) + '-01' && state.today.slice(0,7) !== previous.slice(0,7)) calendarMonth = state.today.slice(0,7) + '-01';
+        save(); render();
+      });
+      document.getElementById('reset-all').addEventListener('click', () => {
+        if (!confirm('모든 과제와 진행 기록을 지우고 처음부터 다시 시작할까요?')) return;
+        try { const keys = Array.from({length:localStorage.length},(_,i) => localStorage.key(i)); for (const key of keys) if (key?.startsWith('팀과제도우미:')) localStorage.removeItem(key); }
+        catch (_) { notice.textContent = '저장된 내용을 지우지 못했습니다. 브라우저 저장 공간을 확인해 주세요.'; return; }
+        state = { today: localToday(), projects: [] }; selectedId = null; render();
+      });
+      render();
+    })();
+  </script>
+</body>
+</html>
